@@ -1,0 +1,9 @@
+[package]
+name = "ferocios"
+version = "0.1.0"
+authors = ["ferocios-devs"]
+edition = "2018"
+
+[dependencies]
+rlibc = "1.0.0"
+bootloader = "0.9.8"
