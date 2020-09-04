@@ -103,11 +103,35 @@ impl Writer {
             self.color_code = previous_color_code
         }
     }
+
+    /// Sets color code and returns scoped instance that will reset color code on drop.
+    pub fn color_scope(&mut self, color_code: Option<ColorCode>) -> ColorScopedWriter {
+        if let Some(color_code) = color_code {
+            self.set_color_code(color_code)
+        }
+        ColorScopedWriter { writer: self }
+    }
 }
 
 impl fmt::Write for Writer {
     fn write_str(&mut self, s: &str) -> fmt::Result {
         self.write_string(s);
         Ok(())
+    }
+}
+
+pub struct ColorScopedWriter<'a> {
+    writer: &'a mut Writer,
+}
+
+impl<'a> Drop for ColorScopedWriter<'a> {
+    fn drop(&mut self) {
+        self.writer.reset_color_code()
+    }
+}
+
+impl<'a> fmt::Write for ColorScopedWriter<'a> {
+    fn write_str(&mut self, s: &str) -> fmt::Result {
+        self.writer.write_str(s)
     }
 }

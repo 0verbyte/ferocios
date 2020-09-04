@@ -2,12 +2,13 @@ mod color;
 mod writer;
 
 use color::{Color, ColorCode};
+use core::fmt;
 use core::fmt::Write;
 use writer::WRITER;
 
 #[macro_export]
 macro_rules! print {
-    ($($arg:tt)*) => ($crate::vga::_print(format_args!($($arg)*)));
+    ($($arg:tt)*) => ($crate::vga::_print(format_args!($($arg)*), None));
 }
 
 #[macro_export]
@@ -27,21 +28,16 @@ macro_rules! eprintln {
     ($($arg:tt)*) => ($crate::eprint!("{}\n", format_args!($($arg)*)));
 }
 
-use core::fmt;
 #[doc(hidden)]
-pub fn _print(args: fmt::Arguments) {
-    let mut writer = WRITER.lock();
-    writer.write_fmt(args).unwrap();
-    writer.reset_color_code()
+pub fn _print(args: fmt::Arguments, color_code: Option<ColorCode>) {
+    WRITER
+        .lock()
+        .color_scope(color_code)
+        .write_fmt(args)
+        .unwrap()
 }
 
 #[doc(hidden)]
 pub fn _eprint(args: fmt::Arguments) {
-    set_error_color_code();
-    _print(args)
-}
-
-fn set_error_color_code() {
-    let color_code = ColorCode::new(Color::Red, Color::Black);
-    WRITER.lock().set_color_code(color_code)
+    _print(args, Some(ColorCode::new(Color::Red, Color::Black)))
 }
