@@ -27,6 +27,7 @@ struct Buffer {
 pub struct Writer {
     column_position: usize,
     color_code: ColorCode,
+    previous_color_code: Option<ColorCode>,
     buffer: &'static mut Buffer,
 }
 
@@ -35,6 +36,7 @@ impl Writer {
         Writer {
             column_position: 0,
             color_code: ColorCode::new(Color::Yellow, Color::Black),
+            previous_color_code: None,
             buffer: unsafe { &mut *(0xb8000 as *mut Buffer) },
         }
     }
@@ -88,6 +90,17 @@ impl Writer {
         };
         for col in 0..BUFFER_WIDTH {
             self.buffer.chars[row][col].write(blank)
+        }
+    }
+
+    pub fn set_color_code(&mut self, color_code: ColorCode) {
+        self.previous_color_code = Some(self.color_code);
+        self.color_code = color_code
+    }
+
+    pub fn reset_color_code(&mut self) {
+        if let Some(previous_color_code) = self.previous_color_code {
+            self.color_code = previous_color_code
         }
     }
 }

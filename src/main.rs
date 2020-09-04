@@ -9,12 +9,13 @@ mod vga;
 
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
-    println!("{}", info);
+    eprintln!("{}", info);
+
     loop {}
 }
 
 #[no_mangle]
 pub extern "C" fn _start() -> ! {
-    println!("FerociOS booting{}", "..");
+    println!("FerociOS booting..");
     panic!("Not implemented");
 }
