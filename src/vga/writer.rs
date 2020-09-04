@@ -6,11 +6,7 @@ use volatile::Volatile;
 use super::color::{Color, ColorCode};
 
 lazy_static! {
-    pub static ref WRITER: Mutex<Writer> = Mutex::new(Writer {
-        column_position: 0,
-        color_code: ColorCode::new(Color::Yellow, Color::Black),
-        buffer: unsafe { &mut *(0xb8000 as *mut Buffer) },
-    });
+    pub static ref WRITER: Mutex<Writer> = Mutex::new(Writer::new());
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -35,6 +31,14 @@ pub struct Writer {
 }
 
 impl Writer {
+    fn new() -> Self {
+        Writer {
+            column_position: 0,
+            color_code: ColorCode::new(Color::Yellow, Color::Black),
+            buffer: unsafe { &mut *(0xb8000 as *mut Buffer) },
+        }
+    }
+
     fn write_string(&mut self, s: &str) {
         for byte in s.bytes() {
             match byte {
