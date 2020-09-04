@@ -5,23 +5,17 @@ use core::panic::PanicInfo;
 
 extern crate rlibc;
 
+mod vga;
+
 #[panic_handler]
-fn panic(_info: &PanicInfo) -> ! {
+fn panic(info: &PanicInfo) -> ! {
+    eprintln!("{}", info);
+
     loop {}
 }
 
-static BOOT_STR: &[u8] = b"FerociOS booted!";
-
 #[no_mangle]
 pub extern "C" fn _start() -> ! {
-    let vga_buffer = 0xb8000 as *mut u8;
-
-    for (i, &byte) in BOOT_STR.iter().enumerate() {
-        unsafe {
-            *vga_buffer.offset(i as isize * 2) = byte;
-            *vga_buffer.offset(i as isize * 2 + 1) = 0x0a;
-        }
-    }
-
-    loop {}
+    println!("FerociOS booting..");
+    panic!("Not implemented");
 }
