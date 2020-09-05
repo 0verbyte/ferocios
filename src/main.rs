@@ -1,21 +1,12 @@
 #![no_std]
 #![no_main]
 #![feature(custom_test_frameworks)]
-#![test_runner(crate::test_runner)]
+#![test_runner(crate::test::test_runner)]
 #![reexport_test_harness_main = "test_main"]
 
 mod qemu;
 #[cfg(test)]
 use crate::qemu::{exit_qemu, QemuExitCode};
-
-#[cfg(test)]
-fn test_runner(tests: &[&dyn Fn()]) {
-    serial_println!("Running {} tests", tests.len());
-    for test in tests {
-        test();
-    }
-    exit_qemu(QemuExitCode::Success)
-}
 
 use core::panic::PanicInfo;
 
@@ -26,6 +17,7 @@ mod util;
 
 #[macro_use]
 mod serial;
+mod test;
 
 mod vga;
 
