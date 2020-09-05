@@ -18,6 +18,9 @@ use core::panic::PanicInfo;
 extern crate rlibc;
 
 #[macro_use]
+mod util;
+
+#[macro_use]
 mod serial;
 
 mod vga;
