@@ -5,6 +5,7 @@
 #![reexport_test_harness_main = "test_main"]
 
 mod qemu;
+
 #[cfg(test)]
 use crate::qemu::{exit_qemu, QemuExitCode};
 
@@ -17,6 +18,7 @@ mod util;
 
 #[macro_use]
 mod serial;
+
 #[cfg(test)]
 mod test;
 
