@@ -151,7 +151,7 @@ impl<'a> fmt::Write for ColorScopedWriter<'a> {
 
 #[test_case]
 fn Writer_set_color_code() {
-    serial_print!("Writer set color code.. ");
+    serial_print_func!(".. ");
 
     let mut writer = Writer::new();
 
@@ -166,7 +166,7 @@ fn Writer_set_color_code() {
 
 #[test_case]
 fn Writer_retain_previous_color() {
-    serial_print!("Writer retain previous color code.. ");
+    serial_print_func!(".. ");
 
     let mut writer = Writer::new();
     let previous = writer.color_code;
@@ -187,7 +187,7 @@ fn Writer_retain_previous_color() {
 
 #[test_case]
 fn Writer_reset_color_code() {
-    serial_print!("Writer reset color code.. ");
+    serial_print_func!(".. ");
 
     let mut writer = Writer::new();
     let previous = writer.color_code;
@@ -207,7 +207,7 @@ fn Writer_reset_color_code() {
 
 #[test_case]
 fn Writer_color_scope() {
-    serial_print!("Writer color scope.. ");
+    serial_print_func!(".. ");
 
     let mut writer = Writer::new();
     let previous = writer.color_code;
@@ -230,7 +230,7 @@ fn Writer_color_scope() {
 
 #[test_case]
 fn ColorScopedWriter_reset_on_drop() {
-    serial_print!("ColorScopedWriter reset on drop.. ");
+    serial_print_func!(".. ");
 
     let mut writer = Writer::new();
     let previous = writer.color_code;

@@ -33,3 +33,11 @@ macro_rules! serial_println {
     ($fmt:expr, $($arg:tt)*) => ($crate::serial_print!(
         concat!($fmt, "\n"), $($arg)*));
 }
+
+#[macro_export]
+macro_rules! serial_print_func {
+    () => ($crate::serial_print!(function_name!()));
+    ($($arg:tt)*) => {
+        $crate::serial::_print(format_args!("{}{}", function_name!(), $($arg)*));
+    };
+}
