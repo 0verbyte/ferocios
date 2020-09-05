@@ -100,7 +100,8 @@ impl Writer {
 
     pub fn reset_color_code(&mut self) {
         if let Some(previous_color_code) = self.previous_color_code {
-            self.color_code = previous_color_code
+            self.color_code = previous_color_code;
+            self.previous_color_code = None
         }
     }
 
@@ -134,4 +135,60 @@ impl<'a> fmt::Write for ColorScopedWriter<'a> {
     fn write_str(&mut self, s: &str) -> fmt::Result {
         self.writer.write_str(s)
     }
+}
+
+#[test_case]
+fn Writer_set_color_code() {
+    serial_print!("Writer set color code.. ");
+
+    let mut writer = Writer::new();
+
+    let new_color = ColorCode::new(Color::Red, Color::Blue);
+    assert_ne!(new_color, writer.color_code);
+
+    writer.set_color_code(new_color);
+    assert_eq!(writer.color_code, new_color);
+
+    serial_println!("[ok]");
+}
+
+#[test_case]
+fn Writer_retain_previous_color() {
+    serial_print!("Writer retain previous color code.. ");
+
+    let mut writer = Writer::new();
+    let previous = writer.color_code;
+
+    let new_color = ColorCode::new(Color::Red, Color::Blue);
+    assert_ne!(previous, new_color);
+    writer.set_color_code(new_color);
+    assert_eq!(writer.previous_color_code, Some(previous));
+    assert_eq!(writer.color_code, new_color);
+
+    let newer_color = ColorCode::new(Color::Cyan, Color::Pink);
+    writer.set_color_code(newer_color);
+    assert_eq!(writer.previous_color_code, Some(new_color));
+    assert_eq!(writer.color_code, newer_color);
+
+    serial_println!("[ok]");
+}
+
+#[test_case]
+fn Writer_reset_color_code() {
+    serial_print!("Writer reset color code.. ");
+
+    let mut writer = Writer::new();
+    let previous = writer.color_code;
+
+    let new_color = ColorCode::new(Color::Red, Color::Blue);
+    assert_ne!(previous, new_color);
+    writer.set_color_code(new_color);
+    assert_eq!(writer.previous_color_code, Some(previous));
+    assert_eq!(writer.color_code, new_color);
+
+    writer.reset_color_code();
+    assert_eq!(writer.previous_color_code, None);
+    assert_eq!(writer.color_code, previous);
+
+    serial_println!("[ok]");
 }
