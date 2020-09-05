@@ -4,6 +4,7 @@ use spin::Mutex;
 use volatile::Volatile;
 
 use super::color::{Color, ColorCode};
+use super::color_scoped_writer::ColorScopedWriter;
 
 lazy_static! {
     pub static ref WRITER: Mutex<Writer> = Mutex::new(Writer::new());
@@ -32,7 +33,7 @@ pub struct Writer {
 }
 
 impl Writer {
-    fn new() -> Self {
+    pub fn new() -> Self {
         Writer {
             column_position: 0,
             color_code: ColorCode::new(Color::Yellow, Color::Black),
@@ -41,7 +42,11 @@ impl Writer {
         }
     }
 
-    fn write_string(&mut self, s: &str) {
+    pub fn color_code(&self) -> ColorCode {
+        self.color_code
+    }
+
+    pub fn write_string(&mut self, s: &str) {
         for byte in s.bytes() {
             match byte {
                 0x20..=0x7e | b'\n' => self.write_byte(byte),
@@ -51,7 +56,7 @@ impl Writer {
         }
     }
 
-    fn write_byte(&mut self, byte: u8) {
+    pub fn write_byte(&mut self, byte: u8) {
         match byte {
             b'\n' => self.new_line(),
             byte => {
@@ -72,7 +77,7 @@ impl Writer {
         }
     }
 
-    fn new_line(&mut self) {
+    pub fn new_line(&mut self) {
         for row in 1..BUFFER_HEIGHT {
             for col in 0..BUFFER_WIDTH {
                 let character = self.buffer.chars[row][col].read();
@@ -83,7 +88,7 @@ impl Writer {
         self.column_position = 0;
     }
 
-    fn clear_row(&mut self, row: usize) {
+    pub fn clear_row(&mut self, row: usize) {
         let blank = ScreenChar {
             ascii_character: b' ',
             color_code: self.color_code,
@@ -100,7 +105,8 @@ impl Writer {
 
     pub fn reset_color_code(&mut self) {
         if let Some(previous_color_code) = self.previous_color_code {
-            self.color_code = previous_color_code
+            self.color_code = previous_color_code;
+            self.previous_color_code = None
         }
     }
 
@@ -109,7 +115,7 @@ impl Writer {
         if let Some(color_code) = color_code {
             self.set_color_code(color_code)
         }
-        ColorScopedWriter { writer: self }
+        ColorScopedWriter::new(self)
     }
 }
 
@@ -120,18 +126,81 @@ impl fmt::Write for Writer {
     }
 }
 
-pub struct ColorScopedWriter<'a> {
-    writer: &'a mut Writer,
+#[test_case]
+fn set_color_code() {
+    serial_print_fn!(".. ");
+
+    let mut writer = Writer::new();
+
+    let new_color = ColorCode::new(Color::Red, Color::Blue);
+    assert_ne!(new_color, writer.color_code);
+
+    writer.set_color_code(new_color);
+    assert_eq!(writer.color_code, new_color);
+
+    serial_println!("[ok]");
 }
 
-impl<'a> Drop for ColorScopedWriter<'a> {
-    fn drop(&mut self) {
-        self.writer.reset_color_code()
-    }
+#[test_case]
+fn retain_previous_color() {
+    serial_print_fn!(".. ");
+
+    let mut writer = Writer::new();
+    let previous = writer.color_code;
+
+    let new_color = ColorCode::new(Color::Red, Color::Blue);
+    assert_ne!(previous, new_color);
+    writer.set_color_code(new_color);
+    assert_eq!(writer.previous_color_code, Some(previous));
+    assert_eq!(writer.color_code, new_color);
+
+    let newer_color = ColorCode::new(Color::Cyan, Color::Pink);
+    writer.set_color_code(newer_color);
+    assert_eq!(writer.previous_color_code, Some(new_color));
+    assert_eq!(writer.color_code, newer_color);
+
+    serial_println!("[ok]");
 }
 
-impl<'a> fmt::Write for ColorScopedWriter<'a> {
-    fn write_str(&mut self, s: &str) -> fmt::Result {
-        self.writer.write_str(s)
-    }
+#[test_case]
+fn reset_color_code() {
+    serial_print_fn!(".. ");
+
+    let mut writer = Writer::new();
+    let previous = writer.color_code;
+
+    let new_color = ColorCode::new(Color::Red, Color::Blue);
+    assert_ne!(previous, new_color);
+    writer.set_color_code(new_color);
+    assert_eq!(writer.previous_color_code, Some(previous));
+    assert_eq!(writer.color_code, new_color);
+
+    writer.reset_color_code();
+    assert_eq!(writer.previous_color_code, None);
+    assert_eq!(writer.color_code, previous);
+
+    serial_println!("[ok]");
+}
+
+#[test_case]
+fn color_scope() {
+    serial_print_fn!(".. ");
+
+    let mut writer = Writer::new();
+    let previous = writer.color_code;
+
+    {
+        let new_color = ColorCode::new(Color::Red, Color::Blue);
+        assert_ne!(previous, new_color);
+
+        let scope = writer.color_scope(Some(new_color));
+
+        // We cannot do `writer.color_code`, which does an immutable borrow, because `writer` is
+        // mutable borrowed on previous line.
+        assert_eq!(scope.color_code(), new_color);
+    } // reset color code
+
+    assert_eq!(writer.color_code, previous);
+
+    serial_println!("[ok]");
 }
