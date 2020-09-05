@@ -29,3 +29,28 @@ impl ColorCode {
         ColorCode((background as u8) << 4 | (foreground as u8))
     }
 }
+
+#[test_case]
+fn construct_fg_bg() {
+    serial_print_func!(".. ");
+
+    let fg = Color::Blue;
+    let bg = Color::White;
+    let color_code = ColorCode::new(fg, bg);
+    assert_eq!(color_code.0, (bg as u8) << 4 | (fg as u8));
+
+    serial_println!("[ok]");
+}
+
+#[test_case]
+fn deconstruct_fg_bg() {
+    serial_print_func!(".. ");
+
+    let fg = Color::Blue;
+    let bg = Color::White;
+    let color_code = ColorCode::new(fg, bg);
+    assert_eq!(color_code.0 & 0xF, fg as u8);
+    assert_eq!(color_code.0 >> 4, bg as u8);
+
+    serial_println!("[ok]");
+}
