@@ -33,21 +33,15 @@ impl<'a> fmt::Write for ColorScopedWriter<'a> {
 
 #[test_case]
 fn color_code() {
-    serial_print_fn!(".. ");
-
     let mut writer = Writer::new();
     let color_code = writer.color_code();
     let scope = ColorScopedWriter::new(&mut writer);
     assert_eq!(scope.color_code(), color_code);
-
-    serial_println!("[ok]");
 }
 
 #[test_case]
 fn reset_on_drop() {
     use super::color::Color;
-
-    serial_print_fn!(".. ");
 
     let mut writer = Writer::new();
     let previous = writer.color_code();
@@ -60,6 +54,4 @@ fn reset_on_drop() {
     } // reset color code
 
     assert_eq!(writer.color_code(), previous);
-
-    serial_println!("[ok]");
 }

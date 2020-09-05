@@ -128,8 +128,6 @@ impl fmt::Write for Writer {
 
 #[test_case]
 fn set_color_code() {
-    serial_print_fn!(".. ");
-
     let mut writer = Writer::new();
 
     let new_color = ColorCode::new(Color::Red, Color::Blue);
@@ -137,14 +135,10 @@ fn set_color_code() {
 
     writer.set_color_code(new_color);
     assert_eq!(writer.color_code, new_color);
-
-    serial_println!("[ok]");
 }
 
 #[test_case]
 fn retain_previous_color() {
-    serial_print_fn!(".. ");
-
     let mut writer = Writer::new();
     let previous = writer.color_code;
 
@@ -158,14 +152,10 @@ fn retain_previous_color() {
     writer.set_color_code(newer_color);
     assert_eq!(writer.previous_color_code, Some(new_color));
     assert_eq!(writer.color_code, newer_color);
-
-    serial_println!("[ok]");
 }
 
 #[test_case]
 fn reset_color_code() {
-    serial_print_fn!(".. ");
-
     let mut writer = Writer::new();
     let previous = writer.color_code;
 
@@ -178,14 +168,10 @@ fn reset_color_code() {
     writer.reset_color_code();
     assert_eq!(writer.previous_color_code, None);
     assert_eq!(writer.color_code, previous);
-
-    serial_println!("[ok]");
 }
 
 #[test_case]
 fn color_scope() {
-    serial_print_fn!(".. ");
-
     let mut writer = Writer::new();
     let previous = writer.color_code;
 
@@ -201,6 +187,4 @@ fn color_scope() {
     } // reset color code
 
     assert_eq!(writer.color_code, previous);
-
-    serial_println!("[ok]");
 }
