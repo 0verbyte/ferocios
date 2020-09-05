@@ -1,4 +1,5 @@
 mod color;
+mod color_scoped_writer;
 mod writer;
 
 use color::{Color, ColorCode};
