@@ -1,7 +1,5 @@
-#[cfg(test)]
 use crate::qemu::{exit_qemu, QemuExitCode};
 
-#[cfg(test)]
 pub fn test_runner(tests: &[&dyn Testable]) {
     serial_println!("Running {} tests", tests.len());
     for test in tests {

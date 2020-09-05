@@ -17,6 +17,7 @@ mod util;
 
 #[macro_use]
 mod serial;
+#[cfg(test)]
 mod test;
 
 mod vga;
