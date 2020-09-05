@@ -33,7 +33,7 @@ impl<'a> fmt::Write for ColorScopedWriter<'a> {
 
 #[test_case]
 fn color_code() {
-    serial_print_func!(".. ");
+    serial_print_fn!(".. ");
 
     let mut writer = Writer::new();
     let color_code = writer.color_code();
@@ -47,7 +47,7 @@ fn color_code() {
 fn reset_on_drop() {
     use super::color::Color;
 
-    serial_print_func!(".. ");
+    serial_print_fn!(".. ");
 
     let mut writer = Writer::new();
     let previous = writer.color_code();

@@ -54,7 +54,7 @@ impl ColorCode {
 
 #[test_case]
 fn Color_entries_amount() {
-    serial_print_func!(".. ");
+    serial_print_fn!(".. ");
 
     assert_eq!(16, Color::VARIANT_COUNT);
 
@@ -63,7 +63,7 @@ fn Color_entries_amount() {
 
 #[test_case]
 fn Color_number() {
-    serial_print_func!(".. ");
+    serial_print_fn!(".. ");
 
     let mut pos = 0;
     for value in Color::into_enum_iter() {
@@ -76,7 +76,7 @@ fn Color_number() {
 
 #[test_case]
 fn Color_from_u8() {
-    serial_print_func!(".. ");
+    serial_print_fn!(".. ");
 
     for value in Color::into_enum_iter() {
         assert_eq!(Color::from_u8(value.number()), Some(value));
@@ -90,7 +90,7 @@ fn Color_from_u8() {
 
 #[test_case]
 fn ColorCode_foreground() {
-    serial_print_func!(".. ");
+    serial_print_fn!(".. ");
 
     let fg = Color::Blue;
     let color_code = ColorCode::new(fg, Color::Brown);
@@ -101,7 +101,7 @@ fn ColorCode_foreground() {
 
 #[test_case]
 fn ColorCode_background() {
-    serial_print_func!(".. ");
+    serial_print_fn!(".. ");
 
     let bg = Color::LightRed;
     let color_code = ColorCode::new(Color::Magenta, bg);

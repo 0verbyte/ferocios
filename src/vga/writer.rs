@@ -128,7 +128,7 @@ impl fmt::Write for Writer {
 
 #[test_case]
 fn set_color_code() {
-    serial_print_func!(".. ");
+    serial_print_fn!(".. ");
 
     let mut writer = Writer::new();
 
@@ -143,7 +143,7 @@ fn set_color_code() {
 
 #[test_case]
 fn retain_previous_color() {
-    serial_print_func!(".. ");
+    serial_print_fn!(".. ");
 
     let mut writer = Writer::new();
     let previous = writer.color_code;
@@ -164,7 +164,7 @@ fn retain_previous_color() {
 
 #[test_case]
 fn reset_color_code() {
-    serial_print_func!(".. ");
+    serial_print_fn!(".. ");
 
     let mut writer = Writer::new();
     let previous = writer.color_code;
@@ -184,7 +184,7 @@ fn reset_color_code() {
 
 #[test_case]
 fn color_scope() {
-    serial_print_func!(".. ");
+    serial_print_fn!(".. ");
 
     let mut writer = Writer::new();
     let previous = writer.color_code;
