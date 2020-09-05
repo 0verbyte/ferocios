@@ -1,3 +1,4 @@
+use core::convert::TryFrom;
 use enum_iterator::IntoEnumIterator;
 
 #[allow(dead_code)]
@@ -26,9 +27,15 @@ impl Color {
     pub fn number(&self) -> u8 {
         *self as u8
     }
+}
 
-    pub fn from_u8(number: u8) -> Option<Color> {
-        Color::into_enum_iter().find(|&value| value.number() == number)
+impl TryFrom<u8> for Color {
+    type Error = ();
+
+    fn try_from(number: u8) -> Result<Self, Self::Error> {
+        Color::into_enum_iter()
+            .find(|&value| value.number() == number)
+            .ok_or(())
     }
 }
 
@@ -43,12 +50,12 @@ impl ColorCode {
 
     #[allow(dead_code)]
     pub fn foreground(&self) -> Option<Color> {
-        Color::from_u8(self.0 & 0xF)
+        Color::try_from(self.0 & 0xF).ok()
     }
 
     #[allow(dead_code)]
     pub fn background(&self) -> Option<Color> {
-        Color::from_u8(self.0 >> 4)
+        Color::try_from(self.0 >> 4).ok()
     }
 }
 
@@ -75,15 +82,15 @@ fn Color_number() {
 }
 
 #[test_case]
-fn Color_from_u8() {
+fn Color_from() {
     serial_print_fn!(".. ");
 
     for value in Color::into_enum_iter() {
-        assert_eq!(Color::from_u8(value.number()), Some(value));
+        assert_eq!(Color::try_from(value.number()), Ok(value));
     }
 
     // Outside the range.
-    assert_eq!(Color::from_u8((Color::VARIANT_COUNT + 1) as u8), None);
+    assert!(Color::try_from((Color::VARIANT_COUNT + 1) as u8).is_err());
 
     serial_println!("[ok]");
 }
