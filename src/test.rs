@@ -11,10 +11,8 @@ pub fn test_runner(tests: &[&dyn Testable]) {
             .unwrap()
             .name_len();
 
-        let mut num = 0;
-        for test in tests {
+        for (num, test) in tests.iter().enumerate() {
             test.run(num, amount, max_name_len);
-            num += 1;
         }
     }
     exit_qemu(QemuExitCode::Success)
