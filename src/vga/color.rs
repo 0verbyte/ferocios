@@ -66,10 +66,8 @@ fn Color_entries_amount() {
 
 #[test_case]
 fn Color_number() {
-    let mut pos = 0;
-    for value in Color::into_enum_iter() {
-        assert_eq!(value.number(), pos);
-        pos += 1;
+    for (pos, value) in Color::into_enum_iter().enumerate() {
+        assert_eq!(value.number(), pos as u8);
     }
 }
 
