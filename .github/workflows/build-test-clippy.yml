@@ -1,0 +1,29 @@
+name: Rust
+
+on:
+  # On all pushes to master
+  push:
+    branches: [ master ]
+  # On all pushes to pull requests in general
+  pull_request:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - run: rustup component add rust-src llvm-tools-preview clippy
+    - run: cargo install bootimage
+    - run: sudo apt-get update
+    - run: sudo apt-get install -y --fix-missing qemu-system-x86
+    - name: Build
+      run: make build-verbose
+    - name: Run tests
+      run: make test-verbose
+    - name: Clippy
+      run: make clippy
