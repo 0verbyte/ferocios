@@ -1,4 +1,4 @@
-name: Rust
+name: Build Test Clippy
 
 on:
   # On all pushes to master

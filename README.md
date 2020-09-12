@@ -1,3 +1,6 @@
+[![Build, Test, Clippy](https://github.com/ferocios/ferocios/workflows/Build%20Test%20Clippy/badge.svg)](https://github.com/ferocios/ferocios/actions)
+[![Security Audit](https://github.com/ferocios/ferocios/workflows/Security%20Audit/badge.svg)](https://github.com/ferocios/ferocios/actions)
+
 # FerociOS
 Ferocious..
 
