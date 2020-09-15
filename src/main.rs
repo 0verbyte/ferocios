@@ -1,5 +1,7 @@
 #![no_std]
 #![no_main]
+#![feature(asm)]
+#![feature(abi_x86_interrupt)]
 #![feature(custom_test_frameworks)]
 #![test_runner(crate::test::test_runner)]
 #![reexport_test_harness_main = "test_main"]
@@ -22,7 +24,10 @@ mod serial;
 #[cfg(test)]
 mod test;
 
+#[macro_use]
 mod vga;
+
+mod interrupts;
 
 #[cfg(not(test))]
 #[panic_handler]
@@ -44,10 +49,11 @@ fn panic(info: &PanicInfo) -> ! {
 
 #[no_mangle]
 pub extern "C" fn _start() -> ! {
+    interrupts::init_idt();
     println!("FerociOS booting..");
 
     #[cfg(test)]
     test_main();
 
-    panic!("Not implemented");
+    panic!("Not implemented")
 }
