@@ -170,8 +170,8 @@ fn incr_instruction_pointer(stack_frame: &mut InterruptStackFrame, num_bytes: u6
 
     unsafe {
         let new_ip = stack_frame.instruction_pointer.as_u64() + num_bytes;
-        stack_frame.as_mut().instruction_pointer = VirtAddr::new(new_ip);
-    };
+        stack_frame.as_mut().instruction_pointer = VirtAddr::new(new_ip)
+    }
 }
 
 #[test_case]
@@ -181,7 +181,7 @@ fn test_debug() {
 
 #[test_case]
 fn test_breakpoint_handler() {
-    x86_64::instructions::interrupts::int3();
+    x86_64::instructions::interrupts::int3()
 }
 
 #[cfg(test)]
@@ -197,8 +197,8 @@ fn test_divide_by_zero() {
     // panic. So writing the assembly to divide by zero to bypass the runtime.
     unsafe {
         asm!("mov dx, 0");
-        asm!("div dx");
-    };
+        asm!("div dx")
+    }
     // The exception handler will progress the instruction_pointer to this
     // instruction so the test will pass.
     assert!(true)
