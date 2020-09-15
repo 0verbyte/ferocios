@@ -32,6 +32,10 @@ lazy_static! {
         idt.security_exception
             .set_handler_fn(security_exception_handler);
 
+        // Register handlers for tests
+        #[cfg(test)]
+        idt.divide_error.set_handler_fn(divide_by_zero_handler_test);
+
         idt
     };
 }
@@ -169,7 +173,33 @@ fn incr_instruction_pointer(stack_frame: &mut InterruptStackFrame, num_bytes: u6
         stack_frame.as_mut().instruction_pointer = VirtAddr::new(new_ip);
     };
 }
+
+#[test_case]
+fn test_debug() {
+    unsafe { asm!("int 1") }
+}
+
 #[test_case]
 fn test_breakpoint_handler() {
     x86_64::instructions::interrupts::int3();
+}
+
+#[cfg(test)]
+extern "x86-interrupt" fn divide_by_zero_handler_test(mut stack_frame: &mut InterruptStackFrame) {
+    // 0x3 is the number of bytes for the instruction that triggered the
+    // exception: `divw %dx` (66 f7 f2) is a 3-byte instruction.
+    incr_instruction_pointer(&mut stack_frame, 0x3)
+}
+
+#[test_case]
+fn test_divide_by_zero() {
+    // The Rust runtime guards against divide by zero errors by triggering a
+    // panic. So writing the assembly to divide by zero to bypass the runtime.
+    unsafe {
+        asm!("mov dx, 0");
+        asm!("div dx");
+    };
+    // The exception handler will progress the instruction_pointer to this
+    // instruction so the test will pass.
+    assert!(true)
 }
