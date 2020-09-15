@@ -156,6 +156,19 @@ fn print_exception_stack_frame(
     loop {}
 }
 
+// Progresses the instruction pointer by N bytes. This is useful in situations
+// where an exception occurs and the instruction_pointer is set to faulty a
+// fault instruction. By progressing the instruction pointer we can resume
+// execution _after_ fixing the error.
+#[allow(dead_code)]
+fn incr_instruction_pointer(stack_frame: &mut InterruptStackFrame, num_bytes: u64) {
+    use x86_64::addr::VirtAddr;
+
+    unsafe {
+        let new_ip = stack_frame.instruction_pointer.as_u64() + num_bytes;
+        stack_frame.as_mut().instruction_pointer = VirtAddr::new(new_ip);
+    };
+}
 #[test_case]
 fn test_breakpoint_handler() {
     x86_64::instructions::interrupts::int3();
