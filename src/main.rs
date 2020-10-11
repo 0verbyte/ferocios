@@ -27,6 +27,7 @@ mod test;
 #[macro_use]
 mod vga;
 
+mod gdt;
 mod interrupts;
 
 #[cfg(not(test))]
@@ -49,6 +50,7 @@ fn panic(info: &PanicInfo) -> ! {
 
 #[no_mangle]
 pub extern "C" fn _start() -> ! {
+    gdt::init();
     interrupts::init_idt();
     println!("FerociOS booting..");
 
