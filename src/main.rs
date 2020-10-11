@@ -48,14 +48,18 @@ fn panic(info: &PanicInfo) -> ! {
     loop {}
 }
 
-#[no_mangle]
-pub extern "C" fn _start() -> ! {
+fn init() {
     gdt::init();
     interrupts::init();
-    println!("FerociOS booting..");
 
     #[cfg(test)]
     test_main();
+}
 
+#[no_mangle]
+pub extern "C" fn _start() -> ! {
+    init();
+
+    println!("FerociOS booting..");
     panic!("Not implemented")
 }
