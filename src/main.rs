@@ -51,7 +51,7 @@ fn panic(info: &PanicInfo) -> ! {
 #[no_mangle]
 pub extern "C" fn _start() -> ! {
     gdt::init();
-    interrupts::init_idt();
+    interrupts::init();
     println!("FerociOS booting..");
 
     #[cfg(test)]
