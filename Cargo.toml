@@ -6,10 +6,10 @@ edition = "2018"
 
 [dependencies]
 rlibc = "1.0.0"
-bootloader = "0.9.8"
+bootloader = "0.9.11"
 volatile = "0.3.0"
-x86_64 = "0.11.0"
-uart_16550 = "0.2.0"
+x86_64 = "0.12.2"
+uart_16550 = "0.2.10"
 enum-iterator = "0.6.0"
 
 [dependencies.spinning]
