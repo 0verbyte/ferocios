@@ -27,6 +27,7 @@ mod test;
 #[macro_use]
 mod vga;
 
+mod gdt;
 mod interrupts;
 
 #[cfg(not(test))]
@@ -47,13 +48,18 @@ fn panic(info: &PanicInfo) -> ! {
     loop {}
 }
 
-#[no_mangle]
-pub extern "C" fn _start() -> ! {
-    interrupts::init_idt();
-    println!("FerociOS booting..");
+fn init() {
+    gdt::init();
+    interrupts::init();
 
     #[cfg(test)]
     test_main();
+}
 
+#[no_mangle]
+pub extern "C" fn _start() -> ! {
+    init();
+
+    println!("FerociOS booting..");
     panic!("Not implemented")
 }
