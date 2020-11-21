@@ -205,7 +205,9 @@ fn test_divide_by_zero() {
         asm!("mov dx, 0");
         asm!("div dx")
     }
-    // The exception handler will progress the instruction_pointer to this
-    // instruction so the test will pass.
-    assert!(true)
+    // The exception handler will progress the instruction_pointer to this instruction so the test
+    // will pass. The value is put into a variable because `assert!(true)` could be optimized out by
+    // the compiler.
+    let res = true;
+    assert!(res)
 }
