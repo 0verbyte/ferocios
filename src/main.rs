@@ -29,13 +29,14 @@ mod vga;
 
 mod gdt;
 mod interrupts;
+mod keyboard;
 
 #[cfg(not(test))]
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
     eprintln!("{}", info);
 
-    loop {}
+    hlt_loop()
 }
 
 #[cfg(test)]
@@ -45,7 +46,13 @@ fn panic(info: &PanicInfo) -> ! {
     serial_println!("Error: {}\n", info);
     exit_qemu(QemuExitCode::Failed);
 
-    loop {}
+    hlt_loop()
+}
+
+fn hlt_loop() -> ! {
+    loop {
+        x86_64::instructions::hlt()
+    }
 }
 
 fn init() {
@@ -61,5 +68,5 @@ pub extern "C" fn _start() -> ! {
     init();
 
     println!("FerociOS booting..");
-    panic!("Not implemented")
+    panic!("Not implemented");
 }

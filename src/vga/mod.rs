@@ -31,11 +31,13 @@ macro_rules! eprintln {
 
 #[doc(hidden)]
 pub fn _print(args: fmt::Arguments, color_code: Option<ColorCode>) {
-    WRITER
-        .lock()
-        .color_scope(color_code)
-        .write_fmt(args)
-        .unwrap()
+    x86_64::instructions::interrupts::without_interrupts(|| {
+        WRITER
+            .lock()
+            .color_scope(color_code)
+            .write_fmt(args)
+            .unwrap()
+    })
 }
 
 #[doc(hidden)]
