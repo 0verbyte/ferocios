@@ -1,7 +1,35 @@
 use lazy_static::lazy_static;
+use pic8259_simple::ChainedPics;
+use spinning::Mutex;
+
 use x86_64::structures::idt::{InterruptDescriptorTable, InterruptStackFrame, PageFaultErrorCode};
 
-use crate::gdt;
+use crate::{gdt, keyboard};
+
+pub const PIC_1_OFFSET: u8 = 32;
+pub const PIC_2_OFFSET: u8 = PIC_1_OFFSET + 8;
+
+#[derive(Debug, Clone, Copy)]
+#[repr(u8)]
+pub enum InterruptIndex {
+    Timer = PIC_1_OFFSET,
+    Keyboard,
+}
+
+impl InterruptIndex {
+    fn as_u8(self) -> u8 {
+        self as u8
+    }
+
+    fn as_usize(self) -> usize {
+        usize::from(self.as_u8())
+    }
+}
+
+lazy_static! {
+    static ref PICS: Mutex<ChainedPics> =
+        Mutex::new(unsafe { ChainedPics::new(PIC_1_OFFSET, PIC_2_OFFSET) });
+}
 
 lazy_static! {
     static ref IDT: InterruptDescriptorTable = {
@@ -38,6 +66,10 @@ lazy_static! {
         idt.security_exception
             .set_handler_fn(security_exception_handler);
 
+        // Hardware interrupt codes
+        idt[InterruptIndex::Timer.as_usize()].set_handler_fn(timer_handler);
+        idt[InterruptIndex::Keyboard.as_usize()].set_handler_fn(keyboard_handler);
+
         // Register handlers for tests
         #[cfg(test)]
         idt.divide_error.set_handler_fn(divide_by_zero_handler_test);
@@ -47,7 +79,13 @@ lazy_static! {
 }
 
 pub fn init() {
-    IDT.load()
+    IDT.load();
+    enable_hardware_interrupts()
+}
+
+fn enable_hardware_interrupts() {
+    unsafe { PICS.lock().initialize() };
+    x86_64::instructions::interrupts::enable()
 }
 
 extern "x86-interrupt" fn divide_by_zero_handler(stack_frame: &mut InterruptStackFrame) {
@@ -147,6 +185,21 @@ extern "x86-interrupt" fn security_exception_handler(
     error_code: u64,
 ) {
     print_exception_stack_frame("security_exception_handler", stack_frame, Some(error_code))
+}
+
+extern "x86-interrupt" fn timer_handler(_stack_frame: &mut InterruptStackFrame) {
+    ack_interrupt(InterruptIndex::Timer)
+}
+
+extern "x86-interrupt" fn keyboard_handler(_stack_frame: &mut InterruptStackFrame) {
+    keyboard::process_input();
+    ack_interrupt(InterruptIndex::Keyboard)
+}
+
+// Notify PIC that the interrupt was handled, which allows for new interrupts
+// to be received.
+fn ack_interrupt(index: InterruptIndex) {
+    unsafe { PICS.lock().notify_end_of_interrupt(index.as_u8()) }
 }
 
 fn print_exception_stack_frame(
