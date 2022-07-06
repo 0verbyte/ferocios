@@ -126,6 +126,8 @@ extern "x86-interrupt" fn double_fault_handler(
     error_code: u64,
 ) -> ! {
     print_exception_stack_frame("double_fault_handler", stack_frame, Some(error_code));
+
+    #[allow(clippy::empty_loop)]
     loop {}
 }
 
@@ -171,6 +173,8 @@ extern "x86-interrupt" fn alignment_check_handler(
 
 extern "x86-interrupt" fn machine_check_handler(stack_frame: InterruptStackFrame) -> ! {
     print_exception_stack_frame("machine_check_handler", stack_frame, None);
+
+    #[allow(clippy::empty_loop)]
     loop {}
 }
 
@@ -214,6 +218,7 @@ fn print_exception_stack_frame(
     // caused the exception iretq will return to the faulty instruction and
     // endless loop
     #[cfg(not(test))]
+    #[allow(clippy::empty_loop)]
     loop {}
 }
 
